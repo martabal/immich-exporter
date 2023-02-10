@@ -1,0 +1,19 @@
+{
+  "name": "immich-exporter",
+  "version": "0.1.0",
+  "description": "exporter for immich",
+  "main": "src/main.go",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "exporter",
+    "immich",
+    "grafana",
+    "dashboard",
+    "metrics",
+    "prometheus"
+  ],
+  "author": "martabal",
+  "license": "ISC"
+}
