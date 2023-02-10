@@ -7,7 +7,7 @@
 </p>
 
 This app is a Prometheus exporter for immich.  
-This app is made to be integrated with the [immich-grafana-dashboard](https://github.com/martabal/immich-exporter/grafana/dashboard.json)  
+This app is made to be integrated with the [immich-grafana-dashboard](https://github.com/martabal/immich-exporter/blob/main/grafana/dashboard.json)  
 
 ## Run it
 
