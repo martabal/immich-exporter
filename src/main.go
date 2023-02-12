@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"immich-exporter/src/immich"
 	"immich-exporter/src/models"
-	myprom "immich-exporter/src/promtheus"
+
 	"log"
 	"net/http"
 
@@ -20,22 +19,19 @@ func main() {
 	log.Println("Started")
 	r := prometheus.NewRegistry()
 
-	r.MustRegister(myprom.HttpRequestDuration)
-	r.MustRegister(myprom.Version)
+	immich.Allrequests(r)
 
-	mux := http.NewServeMux()
-
-	mux.Handle("/metrics", promhttp.HandlerFor(r, promhttp.HandlerOpts{}))
-	var srv *http.Server
-	srv = &http.Server{Addr: ":8090", Handler: mux}
-	log.Fatal(srv.ListenAndServe())
+	http.HandleFunc("/metrics", test)
+	http.ListenAndServe(":8090", nil)
 }
 
-func metrics(w http.ResponseWriter, req *http.Request) {
-	value := immich.Allrequests()
-	if value == "" {
-		value = immich.Allrequests()
-	}
+func test(w http.ResponseWriter, r *http.Request) {
+	registry := prometheus.NewRegistry()
 
-	fmt.Fprintf(w, value)
+	immich.Allrequests(registry)
+
+	// Delegate http serving to Promethues client library, which will call collector.Collect.
+	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	h.ServeHTTP(w, r)
+
 }

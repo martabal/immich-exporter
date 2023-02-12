@@ -7,20 +7,23 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
-func Allrequests() string {
+func Allrequests(r *prometheus.Registry) {
 
-	return serverversion() + Analyze()
+	serverversion(r)
+	Analyze(r)
 }
 
-func Analyze() string {
+func Analyze(r *prometheus.Registry) {
 	allusers, err := GetAllUsers()
 	users, err2 := users()
 	if err != nil && err2 != nil {
-		return ""
+
 	} else {
-		return Sendbackmessagepreference(users, allusers)
+		Sendbackmessagepreference(users, allusers, r)
 	}
 
 }
@@ -57,7 +60,7 @@ func GetAllUsers() (*models.AllUsers, error) {
 	return &models.AllUsers{}, err
 }
 
-func serverversion() string {
+func serverversion(r *prometheus.Registry) {
 	resp, err := Apirequest("/api/server-info/version", "GET")
 	if err != nil {
 		if err.Error() == "403" {
@@ -82,12 +85,11 @@ func serverversion() string {
 				log.Println("Can not unmarshal JSON")
 			}
 
-			return Sendbackmessageserverversion(&result)
+			Sendbackmessageserverversion(&result, r)
 
 		}
 	}
 
-	return ""
 }
 
 func users() (*models.Users, error) {
