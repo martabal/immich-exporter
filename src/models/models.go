@@ -1,13 +1,13 @@
 package models
 
-type User struct {
+type StructImmichUser struct {
 	Username    string
 	Password    string
 	URL         string
 	accessToken string
 }
 
-var myuser User
+var myuser StructImmichUser
 
 func mask(input string) string {
 	hide := ""

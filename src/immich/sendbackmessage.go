@@ -8,7 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func Sendbackmessagepreference(result *models.Users, result2 *models.AllUsers, r *prometheus.Registry) {
+func Sendbackmessagepreference(result *models.StructServerInfo, result2 *models.StructAllUsers, r *prometheus.Registry) {
 	total_photos := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "immich_app_total_photos",
 		Help: "The total number of photos",
@@ -67,7 +67,7 @@ func Sendbackmessagepreference(result *models.Users, result2 *models.AllUsers, r
 
 }
 
-func Sendbackmessageserverversion(result *models.ServerVersion, r *prometheus.Registry) {
+func Sendbackmessageserverversion(result *models.StructServerVersion, r *prometheus.Registry) {
 
 	version := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "version",
@@ -81,7 +81,7 @@ func Sendbackmessageserverversion(result *models.ServerVersion, r *prometheus.Re
 
 }
 
-func GetName(result string, result2 *models.AllUsers) models.CustomUser {
+func GetName(result string, result2 *models.StructAllUsers) models.CustomUser {
 	var myuser models.CustomUser
 	for i := 0; i < len(*result2); i++ {
 		if (*result2)[i].ID == result {

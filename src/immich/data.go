@@ -7,28 +7,45 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+var wg sync.WaitGroup
+
 func Allrequests(r *prometheus.Registry) {
 
-	serverversion(r)
-
-	Analyze(r)
+	wg.Add(1)
+	go ServerVersion(r)
+	wg.Add(1)
+	go Analyze(r)
+	wg.Wait()
 }
 
 func Analyze(r *prometheus.Registry) {
-	allusers, err := GetAllUsers()
-	users, err2 := users()
+	defer wg.Done()
+	allusers := make(chan func() (*models.StructAllUsers, error))
+
+	serverinfo := make(chan func() (*models.StructServerInfo, error))
+	wg.Add(1)
+	go GetAllUsers(allusers)
+	res1, err := (<-allusers)()
+	wg.Add(1)
+	go ServerInfo(serverinfo)
+
+	res2, err2 := (<-serverinfo)()
+
 	if err != nil && err2 != nil {
 	} else {
-		Sendbackmessagepreference(users, allusers, r)
+		Sendbackmessagepreference(res2, res1, r)
 	}
-
+	close(serverinfo)
+	close(allusers)
 }
 
-func GetAllUsers() (*models.AllUsers, error) {
+func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
+	defer wg.Done()
 	resp, err := Apirequest("/api/user?isAll=true", "GET")
 	if err != nil {
 		if err.Error() == "403" {
@@ -48,19 +65,20 @@ func GetAllUsers() (*models.AllUsers, error) {
 			log.Fatalln(err)
 		} else {
 
-			var result models.AllUsers
+			result := new(models.StructAllUsers)
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
 				log.Println("Can not unmarshal JSON")
 			}
 
-			return &result, nil
+			c <- (func() (*models.StructAllUsers, error) { return result, nil })
 
 		}
 	}
-	return &models.AllUsers{}, err
+
 }
 
-func serverversion(r *prometheus.Registry) {
+func ServerVersion(r *prometheus.Registry) {
+	defer wg.Done()
 	resp, err := Apirequest("/api/server-info/version", "GET")
 	if err != nil {
 		if err.Error() == "403" {
@@ -80,7 +98,7 @@ func serverversion(r *prometheus.Registry) {
 			log.Fatalln(err)
 		} else {
 
-			var result models.ServerVersion
+			var result models.StructServerVersion
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
 				log.Println("Can not unmarshal JSON")
 			}
@@ -92,7 +110,8 @@ func serverversion(r *prometheus.Registry) {
 
 }
 
-func users() (*models.Users, error) {
+func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
+	defer wg.Done()
 	resp, err := Apirequest("/api/server-info/stats", "GET")
 	if err != nil {
 		if err.Error() == "403" {
@@ -113,16 +132,15 @@ func users() (*models.Users, error) {
 			log.Fatalln(err)
 		} else {
 
-			var result models.Users
+			result := new(models.StructServerInfo)
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
 				log.Println("Can not unmarshal JSON")
 			}
-
-			return &result, nil
+			c <- (func() (*models.StructServerInfo, error) { return result, nil })
 
 		}
 	}
-	return &models.Users{}, err
+
 }
 
 func Apirequest(uri string, method string) (*http.Response, error) {

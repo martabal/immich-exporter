@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type Login struct {
+type StructLogin struct {
 	AccessToken          string `json:"accessToken"`
 	UserID               string `json:"userId"`
 	UserEmail            string `json:"userEmail"`
@@ -12,7 +12,7 @@ type Login struct {
 	ShouldChangePassword bool   `json:"shouldChangePassword"`
 }
 
-type Users struct {
+type StructServerInfo struct {
 	Photos      int `json:"photos"`
 	Videos      int `json:"videos"`
 	UsageByUser []struct {
@@ -26,7 +26,7 @@ type Users struct {
 	Usage    string `json:"usage"`
 }
 
-type ServerInfo struct {
+type StructDiskInfo struct {
 	DiskAvailable       string  `json:"diskAvailable"`
 	DiskSize            string  `json:"diskSize"`
 	DiskUse             string  `json:"diskUse"`
@@ -36,13 +36,13 @@ type ServerInfo struct {
 	DiskUsagePercentage float64 `json:"diskUsagePercentage"`
 }
 
-type ServerVersion struct {
+type StructServerVersion struct {
 	Major int `json:"major"`
 	Minor int `json:"minor"`
 	Patch int `json:"patch"`
 }
 
-type AllUsers []struct {
+type StructAllUsers []struct {
 	ID                   string    `json:"id"`
 	Email                string    `json:"email"`
 	FirstName            string    `json:"firstName"`

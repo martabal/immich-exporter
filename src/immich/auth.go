@@ -45,7 +45,7 @@ func Auth() {
 			if res.StatusCode == 400 {
 				log.Fatalln("Incorrect login")
 			} else {
-				var result models.Login
+				var result models.StructLogin
 				if err := json.Unmarshal(body, &result); err != nil {
 					log.Println("Can not unmarshal JSON")
 				}
