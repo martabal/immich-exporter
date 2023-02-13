@@ -2,8 +2,6 @@ package models
 
 import "github.com/prometheus/client_golang/prometheus"
 
-var r = prometheus.NewRegistry()
-
 var (
 	appVersion string
 	version    = prometheus.NewGauge(prometheus.GaugeOpts{

@@ -1,7 +1,6 @@
 package immich
 
 import (
-	"fmt"
 	"immich-exporter/src/models"
 
 	"strconv"
@@ -26,32 +25,49 @@ func Sendbackmessagepreference(result *models.Users, result2 *models.AllUsers, r
 		Name: "immich_app_number_users",
 		Help: "The total number of users",
 	})
+	user_info := prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "immich_user_info",
+		Help: "All infos about users",
+	}, []string{"videos", "photos", "uid", "usage", "firstname", "lastname"})
+
+	user_usage := prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "immich_user_usage",
+		Help: "The usage of the user",
+	}, []string{"uid", "firstname", "lastname"})
+	user_photos := prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "immich_user_photos",
+		Help: "The number of photo of the user",
+	}, []string{"uid", "firstname", "lastname"})
+	user_videos := prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "immich_user_videos",
+		Help: "The number of videos of the user",
+	}, []string{"uid", "firstname", "lastname"})
+
+	r.MustRegister(user_info)
 
 	r.MustRegister(total_usage)
 	r.MustRegister(total_videos)
 	r.MustRegister(total_photos)
 	r.MustRegister(total_users)
+	r.MustRegister(user_usage)
+	r.MustRegister(user_videos)
+	r.MustRegister(user_photos)
 	total_photos.Add(float64((*result).Photos))
 	total_videos.Add(float64((*result).Videos))
 	total_usage.Add(float64((*result).UsageRaw))
 	total_users.Add(float64(len((*result).UsageByUser)))
 
-	immich_user_videos := "# HELP immich_app_user_videos The number of videos of the user\n# TYPE immich_app_user_videos gauge\n"
-	immich_user_photos := "# HELP immich_app_user_photos The number of photo of the user\n# TYPE immich_app_user_photos gauge\n"
-	immich_user_usageRaw := "# HELP immich_app_user_usage The usage of the user\n# TYPE immich_app_user_usage gauge\n"
-	immich_user_info := "# HELP immich_user_info All info for torrents\n# TYPE immich_user_info gauge\n"
 	for i := 0; i < len((*result).UsageByUser); i++ {
 		var myuser = GetName((*result).UsageByUser[i].UserID, result2)
-		immich_user_info = immich_user_info + `immich_user_info{videos="` + strconv.Itoa((*result).UsageByUser[i].Videos) + `",photos="` + strconv.Itoa((*result).UsageByUser[i].Photos) + `",uid="` + (*result).UsageByUser[i].UserID + `",usage="` + strconv.Itoa(int((*result).UsageByUser[i].UsageRaw)) + `",firstname="` + myuser.FirstName + `",lastname="` + myuser.LastName + `"} 1.0` + "\n"
-		immich_user_usageRaw = immich_user_usageRaw + `immich_user_usage{uid="` + (*result).UsageByUser[i].UserID + `",firstname="` + myuser.FirstName + `",lastname="` + myuser.LastName + `",} ` + strconv.Itoa(int((*result).UsageByUser[i].UsageRaw)) + "\n"
-		immich_user_photos = immich_user_photos + `immich_user_photos{uid="` + (*result).UsageByUser[i].UserID + `",firstname="` + myuser.FirstName + `",lastname="` + myuser.LastName + `",} ` + strconv.Itoa((*result).UsageByUser[i].Photos) + "\n"
-		immich_user_videos = immich_user_videos + `immich_user_videos{uid="` + (*result).UsageByUser[i].UserID + `",firstname="` + myuser.FirstName + `",lastname="` + myuser.LastName + `",} ` + strconv.Itoa((*result).UsageByUser[i].Videos) + "\n"
+		user_info.With(prometheus.Labels{"videos": strconv.Itoa((*result).UsageByUser[i].Videos), "photos": strconv.Itoa((*result).UsageByUser[i].Photos), "uid": (*result).UsageByUser[i].UserID, "usage": strconv.Itoa(int((*result).UsageByUser[i].UsageRaw)), "firstname": myuser.FirstName, "lastname": myuser.LastName}).Inc()
+		user_photos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Photos))
+		user_usage.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].UsageRaw))
+		user_videos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Videos))
 	}
 
 }
 
 func Sendbackmessageserverversion(result *models.ServerVersion, r *prometheus.Registry) {
-	fmt.Println("test")
 
 	version := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "version",

@@ -14,6 +14,7 @@ import (
 func Allrequests(r *prometheus.Registry) {
 
 	serverversion(r)
+
 	Analyze(r)
 }
 
@@ -21,7 +22,6 @@ func Analyze(r *prometheus.Registry) {
 	allusers, err := GetAllUsers()
 	users, err2 := users()
 	if err != nil && err2 != nil {
-
 	} else {
 		Sendbackmessagepreference(users, allusers, r)
 	}
@@ -53,7 +53,7 @@ func GetAllUsers() (*models.AllUsers, error) {
 				log.Println("Can not unmarshal JSON")
 			}
 
-			return &result, err
+			return &result, nil
 
 		}
 	}

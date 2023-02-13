@@ -17,9 +17,6 @@ func main() {
 	log.Println("username :", models.GetUsername())
 	log.Println("password :", models.Getpasswordmasked())
 	log.Println("Started")
-	r := prometheus.NewRegistry()
-
-	immich.Allrequests(r)
 
 	http.HandleFunc("/metrics", test)
 	http.ListenAndServe(":8090", nil)
