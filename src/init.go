@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"immich-exporter/src/immich"
 	"immich-exporter/src/models"
+	"io/ioutil"
 
 	"log"
 	"os"
@@ -12,11 +14,11 @@ import (
 )
 
 func startup() {
+	projectinfo()
 	var envfile bool
 
 	flag.BoolVar(&envfile, "e", false, "Use .env file")
 	flag.Parse()
-	log.Println("Loading all parameters")
 	if envfile {
 		useenvfile()
 	} else {
@@ -27,8 +29,27 @@ func startup() {
 
 }
 
+func projectinfo() {
+	fileContent, err := os.Open("./package.json")
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	defer fileContent.Close()
+
+	byteResult, _ := ioutil.ReadAll(fileContent)
+
+	var res map[string]interface{}
+	json.Unmarshal([]byte(byteResult), &res)
+	log.Println("Author :", res["author"])
+	log.Println(res["name"], "version", res["version"])
+}
+
 func useenvfile() {
 	myEnv, err := godotenv.Read()
+
 	username := myEnv["IMMICH_USERNAME"]
 	password := myEnv["IMMICH_PASSWORD"]
 	immich_url := myEnv["IMMICH_BASE_URL"]
@@ -50,6 +71,7 @@ func useenvfile() {
 }
 
 func initenv() {
+
 	username := os.Getenv("IMMICH_USERNAME")
 	password := os.Getenv("IMMICH_PASSWORD")
 	immich_url := os.Getenv("IMMICH_BASE_URL")

@@ -10,5 +10,7 @@ RUN go get -d -v ./src/ && \
 FROM alpine:3.17
 
 COPY --from=builder /go/bin/immich-exporter /go/bin/immich-exporter
+COPY package.json /go/bin/
 
+WORKDIR /go/bin
 CMD ["/go/bin/immich-exporter"]
