@@ -2,7 +2,6 @@ package immich
 
 import (
 	"immich-exporter/src/models"
-
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -44,7 +43,6 @@ func Sendbackmessagepreference(result *models.StructServerInfo, result2 *models.
 	}, []string{"uid", "firstname", "lastname"})
 
 	r.MustRegister(user_info)
-
 	r.MustRegister(total_usage)
 	r.MustRegister(total_videos)
 	r.MustRegister(total_photos)
@@ -81,8 +79,8 @@ func Sendbackmessageserverversion(result *models.StructServerVersion, r *prometh
 
 }
 
-func GetName(result string, result2 *models.StructAllUsers) models.CustomUser {
-	var myuser models.CustomUser
+func GetName(result string, result2 *models.StructAllUsers) models.StructCustomUser {
+	var myuser models.StructCustomUser
 	for i := 0; i < len(*result2); i++ {
 		if (*result2)[i].ID == result {
 

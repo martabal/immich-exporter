@@ -18,16 +18,13 @@ func main() {
 	log.Println("password :", models.Getpasswordmasked())
 	log.Println("Started")
 
-	http.HandleFunc("/metrics", test)
+	http.HandleFunc("/metrics", metrics)
 	http.ListenAndServe(":8090", nil)
 }
 
-func test(w http.ResponseWriter, r *http.Request) {
+func metrics(w http.ResponseWriter, r *http.Request) {
 	registry := prometheus.NewRegistry()
-
 	immich.Allrequests(registry)
-
-	// Delegate http serving to Promethues client library, which will call collector.Collect.
 	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 	h.ServeHTTP(w, r)
 

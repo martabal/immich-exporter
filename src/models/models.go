@@ -1,21 +1,13 @@
 package models
 
-type StructImmichUser struct {
+type StructImmich struct {
 	Username    string
 	Password    string
 	URL         string
-	accessToken string
+	AccessToken string
 }
 
-var myuser StructImmichUser
-
-func mask(input string) string {
-	hide := ""
-	for i := 0; i < len(input); i++ {
-		hide += "*"
-	}
-	return hide
-}
+var myuser StructImmich
 
 func Getuser() (string, string) {
 	return myuser.Username, myuser.Password
@@ -35,15 +27,19 @@ func Getpassword() string {
 	return myuser.Password
 }
 func Getpasswordmasked() string {
-	return mask(myuser.Password)
+	hide := ""
+	for i := 0; i < len(myuser.Password); i++ {
+		hide += "*"
+	}
+	return hide
 }
 
 func SetAccessToken(accessToken string) {
-	myuser.accessToken = accessToken
+	myuser.AccessToken = accessToken
 }
 
 func GetAccessToken() string {
-	return myuser.accessToken
+	return myuser.AccessToken
 }
 
 func GetURL() string {

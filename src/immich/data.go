@@ -38,7 +38,7 @@ func Analyze(r *prometheus.Registry) {
 
 	if err != nil && err2 != nil {
 	} else {
-		Sendbackmessagepreference(res2, res1, r)
+		SendBackMessagePreference(res2, res1, r)
 	}
 	close(serverinfo)
 	close(allusers)
@@ -103,7 +103,7 @@ func ServerVersion(r *prometheus.Registry) {
 				log.Println("Can not unmarshal JSON")
 			}
 
-			Sendbackmessageserverversion(&result, r)
+			SendBackMessageserverVersion(&result, r)
 
 		}
 	}

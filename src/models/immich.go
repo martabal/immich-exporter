@@ -55,7 +55,7 @@ type StructAllUsers []struct {
 	OauthID              string    `json:"oauthId"`
 }
 
-type CustomUser struct {
+type StructCustomUser struct {
 	Email     string
 	ID        string
 	FirstName string
