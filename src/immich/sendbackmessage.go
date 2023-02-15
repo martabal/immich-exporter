@@ -7,7 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func Sendbackmessagepreference(result *models.StructServerInfo, result2 *models.StructAllUsers, r *prometheus.Registry) {
+func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.StructAllUsers, r *prometheus.Registry) {
 	total_photos := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "immich_app_total_photos",
 		Help: "The total number of photos",
@@ -65,7 +65,7 @@ func Sendbackmessagepreference(result *models.StructServerInfo, result2 *models.
 
 }
 
-func Sendbackmessageserverversion(result *models.StructServerVersion, r *prometheus.Registry) {
+func SendBackMessageserverVersion(result *models.StructServerVersion, r *prometheus.Registry) {
 
 	version := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "version",
