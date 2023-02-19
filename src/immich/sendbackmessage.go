@@ -68,7 +68,7 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 func SendBackMessageserverVersion(result *models.StructServerVersion, r *prometheus.Registry) {
 
 	version := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "version",
+		Name: "immich_app_version",
 		Help: "Immich version",
 		ConstLabels: map[string]string{
 			"version": strconv.Itoa((*result).Major) + "." + strconv.Itoa((*result).Minor) + "." + strconv.Itoa((*result).Patch),
