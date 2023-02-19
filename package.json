@@ -1,6 +1,6 @@
 {
   "name": "immich-exporter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "exporter for immich",
   "main": "src/main.go",
   "scripts": {
