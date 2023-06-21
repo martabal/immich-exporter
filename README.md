@@ -1,6 +1,8 @@
 # immich-exporter
 
-[![Publish Release](https://github.com/martabal/immich-exporter/actions/workflows/push_docker.yml/badge.svg)](https://github.com/martabal/immich-exporter/actions/workflows/push_docker.yml)
+[![Publish Release](https://github.com/martabal/immich-exporter/actions/workflows/docker.yml/badge.svg)](https://github.com/martabal/immich-exporter/actions/workflows/docker.yml)
+[![Build](https://github.com/martabal/immich-exporter/actions/workflows/build.yml/badge.svg)](https://github.com/martabal/immich-exporter/actions/workflows/build.yml)
+[![Test](https://github.com/martabal/immich-exporter/actions/workflows/test.yml/badge.svg)](https://github.com/martabal/immich-exporter/actions/workflows/test.yml)
 
 <p align="center">
 <img src="img/immich.png" width=100> &nbsp; <img src="img/prometheus.png" width=100><img src="img/golang.png" width=100>
@@ -11,13 +13,14 @@ This app is made to be integrated with the [immich-grafana-dashboard](https://gi
 
 ## Run it
 
+Create an API key in your Immich settings and set `IMMICH_API_KEY` to is value.
+
 ### Docker-cli ([click here for more info](https://docs.docker.com/engine/reference/commandline/cli/))
 
 ```sh
 docker run --name=immich-exporter \
     -e IMMICH_URL=http://192.168.1.10:8080 \
-    -e IMMICH_PASSWORD='<your_password>' \
-    -e IMMICH_USERNAME=admin \
+    -e IMMICH_API_KEY=<your_api_key> \
     -p 8090:8090 \
     martabal/immich-exporter
 ```
@@ -32,8 +35,7 @@ services:
     container_name: immich-exporter
     environment:
       - IMMICH_URL=http://192.168.1.10:8080
-      - IMMICH_PASSWORD='<your_password>'
-      - IMMICH_USERNAME=admin
+      - IMMICH_API_KEY=<your_api_key>
     ports:
       - 8090:8090
     restart: unless-stopped
@@ -63,12 +65,24 @@ If you want to use an .env file, edit `.env.example` to match your setup, rename
 | Parameters | Function |
 | :-----: | ----- |
 | `-p 8090` | Webservice port |
-| `-e IMMICH_USERNAME` | Immich username |
-| `-e IMMICH_PASSWORD` | Immich password |
 | `-e IMMICH_BASE_URL` | Immich base URL |
+| `-e IMMICH_API_KEY` | Immich API key  |
+| `-e EXPORTER_PORT` | qbittorrent export port (optional) | `8090` |
+| `-e LOG_LEVEL` | App log level (`TRACE`, `DEBUG`, `INFO`, `WARN` and `ERROR`) | `INFO` |
 
 ### Arguments
 
 | Arguments | Function |
 | :-----: | ----- |
-| -e | Use a .env file containing environment variables (.env file must be placed in the same directory) |
+| -e | If qbittorrent-exporter detects a .env file in the same directory, the values in the .env will be used, `-e` forces the usage of environment variables |
+
+### Setup
+
+Add the target to your `scrape_configs` in your `prometheus.yml` file of your Prometheus instance.
+
+```yaml
+scrape_configs:
+  - job_name: 'immich'
+    static_configs:
+      - targets: [ '<your_ip_address>:8090' ]
+```

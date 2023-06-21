@@ -2,3 +2,6 @@ img/
 grafana/
 .github/
 Dockerfile
+README.md
+.env*
+.gitignore

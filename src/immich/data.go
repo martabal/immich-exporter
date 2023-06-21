@@ -3,7 +3,7 @@ package immich
 import (
 	"encoding/json"
 	"fmt"
-	"immich-exporter/src/models"
+	"immich-exp/src/models"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -25,9 +25,10 @@ func Allrequests(r *prometheus.Registry) {
 
 func Analyze(r *prometheus.Registry) {
 	defer wg.Done()
-	allusers := make(chan func() (*models.StructAllUsers, error))
 
+	allusers := make(chan func() (*models.StructAllUsers, error))
 	serverinfo := make(chan func() (*models.StructServerInfo, error))
+
 	wg.Add(1)
 	go GetAllUsers(allusers)
 	res1, err := (<-allusers)()
@@ -47,16 +48,7 @@ func Analyze(r *prometheus.Registry) {
 func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 	defer wg.Done()
 	resp, err := Apirequest("/api/user?isAll=true", "GET")
-	if err != nil {
-		if err.Error() == "403" {
-			log.Println("Cookie changed, try to reconnect ...")
-			Auth()
-		} else {
-			if models.GetPromptError() == false {
-				log.Println("Error : ", err)
-			}
-		}
-	} else {
+	if err == nil {
 		if models.GetPromptError() == true {
 			models.SetPromptError(false)
 		}
@@ -71,25 +63,14 @@ func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 			}
 
 			c <- (func() (*models.StructAllUsers, error) { return result, nil })
-
 		}
 	}
-
 }
 
 func ServerVersion(r *prometheus.Registry) {
 	defer wg.Done()
 	resp, err := Apirequest("/api/server-info/version", "GET")
-	if err != nil {
-		if err.Error() == "403" {
-			log.Println("Cookie changed, try to reconnect ...")
-			Auth()
-		} else {
-			if models.GetPromptError() == false {
-				log.Println("Error : ", err)
-			}
-		}
-	} else {
+	if err == nil {
 		if models.GetPromptError() == true {
 			models.SetPromptError(false)
 		}
@@ -100,14 +81,12 @@ func ServerVersion(r *prometheus.Registry) {
 
 			var result models.StructServerVersion
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
-				log.Println("Can not unmarshal JSON")
+				log.Println("Can not unmarshal JSON for version")
 			}
 
 			SendBackMessageserverVersion(&result, r)
-
 		}
 	}
-
 }
 
 func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
@@ -116,7 +95,6 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 	if err != nil {
 		if err.Error() == "403" {
 			log.Println("Cookie changed, try to reconnect ...")
-			Auth()
 		} else {
 			if models.GetPromptError() == false {
 				log.Println("Error : ", err)
@@ -134,23 +112,22 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 
 			result := new(models.StructServerInfo)
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
-				log.Println("Can not unmarshal JSON")
+				log.Println("Can not unmarshal JSON for server infos")
 			}
 			c <- (func() (*models.StructServerInfo, error) { return result, nil })
 
 		}
 	}
-
 }
 
 func Apirequest(uri string, method string) (*http.Response, error) {
 
-	req, err := http.NewRequest(method, models.GetURL()+uri, nil)
+	req, err := http.NewRequest(method, models.Getbaseurl()+uri, nil)
 	if err != nil {
 		log.Fatalln("Error with url")
 	}
-
-	req.AddCookie(&http.Cookie{Name: "immich_access_token", Value: models.GetAccessToken()})
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("x-api-key", models.GetApiKey())
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -164,23 +141,16 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 		return resp, err
 
 	} else {
-		models.SetPromptError(false)
 		if resp.StatusCode == 200 {
-
+			models.SetPromptError(false)
 			return resp, nil
-
 		} else {
 			err := fmt.Errorf("%d", resp.StatusCode)
 			if models.GetPromptError() == false {
 				models.SetPromptError(true)
-
-				log.Println("Error code", err.Error())
-
+				log.Println("Error code", err.Error(), " for ", models.Getbaseurl()+uri)
 			}
 			return resp, err
-
 		}
-
 	}
-
 }

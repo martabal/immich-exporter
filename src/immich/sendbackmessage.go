@@ -1,7 +1,7 @@
 package immich
 
 import (
-	"immich-exporter/src/models"
+	"immich-exp/src/models"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -52,14 +52,14 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 	r.MustRegister(user_photos)
 	total_photos.Add(float64((*result).Photos))
 	total_videos.Add(float64((*result).Videos))
-	total_usage.Add(float64((*result).UsageRaw))
+	total_usage.Add(float64((*result).Usage))
 	total_users.Add(float64(len((*result).UsageByUser)))
 
 	for i := 0; i < len((*result).UsageByUser); i++ {
 		var myuser = GetName((*result).UsageByUser[i].UserID, result2)
-		user_info.With(prometheus.Labels{"videos": strconv.Itoa((*result).UsageByUser[i].Videos), "photos": strconv.Itoa((*result).UsageByUser[i].Photos), "uid": (*result).UsageByUser[i].UserID, "usage": strconv.Itoa(int((*result).UsageByUser[i].UsageRaw)), "firstname": myuser.FirstName, "lastname": myuser.LastName}).Inc()
+		user_info.With(prometheus.Labels{"videos": strconv.Itoa((*result).UsageByUser[i].Videos), "photos": strconv.Itoa((*result).UsageByUser[i].Photos), "uid": (*result).UsageByUser[i].UserID, "usage": strconv.Itoa(int((*result).UsageByUser[i].Usage)), "firstname": myuser.FirstName, "lastname": myuser.LastName}).Inc()
 		user_photos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Photos))
-		user_usage.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].UsageRaw))
+		user_usage.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Usage))
 		user_videos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Videos))
 	}
 
