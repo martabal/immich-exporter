@@ -1,7 +1,10 @@
-img/
+# folders
 grafana/
 .github/
-Dockerfile
-README.md
+img/
+
+# files
 .env*
 .gitignore
+Dockerfile
+README.md
