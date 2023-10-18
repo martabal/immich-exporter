@@ -19,7 +19,7 @@ Create an API key in your Immich settings and set `IMMICH_API_KEY` to is value.
 
 ```sh
 docker run --name=immich-exporter \
-    -e IMMICH_URL=http://192.168.1.10:8080 \
+    -e IMMICH_BASE_URL=http://192.168.1.10:8080 \
     -e IMMICH_API_KEY=<your_api_key> \
     -p 8090:8090 \
     martabal/immich-exporter
@@ -34,7 +34,7 @@ services:
     image: martabal/immich-exporter:latest
     container_name: immich-exporter
     environment:
-      - IMMICH_URL=http://192.168.1.10:8080
+      - IMMICH_BASE_URL=http://192.168.1.10:8080
       - IMMICH_API_KEY=<your_api_key>
     ports:
       - 8090:8090

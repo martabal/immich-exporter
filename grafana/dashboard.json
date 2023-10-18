@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.3.6"
+      "version": "10.1.5"
     },
     {
       "type": "panel",
@@ -137,7 +137,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.1.5",
       "targets": [
         {
           "datasource": {
@@ -206,7 +206,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.1.5",
       "targets": [
         {
           "datasource": {
@@ -275,7 +275,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.1.5",
       "targets": [
         {
           "datasource": {
@@ -344,7 +344,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.1.5",
       "targets": [
         {
           "datasource": {
@@ -361,7 +361,7 @@
           "refId": "A"
         }
       ],
-      "title": "Number of users",
+      "title": "Number of videos",
       "type": "stat"
     },
     {
@@ -376,7 +376,9 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": false,
             "inspect": false
           },
@@ -502,7 +504,9 @@
       },
       "id": 15,
       "options": {
+        "cellHeight": "sm",
         "footer": {
+          "countRows": false,
           "fields": "",
           "reducer": [
             "sum"
@@ -517,7 +521,7 @@
           }
         ]
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.1.5",
       "targets": [
         {
           "datasource": {
@@ -561,6 +565,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineStyle": {
               "fill": "solid"
@@ -659,6 +664,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -868,21 +874,21 @@
       "type": "piechart"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 37,
+  "refresh": "5m",
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Immich",
+  "title": "Immich Go",
   "uid": "9QXCv3AVk",
-  "version": 9,
+  "version": 4,
   "weekStart": ""
 }
