@@ -5,14 +5,20 @@ import (
 	"fmt"
 	"immich-exp/src/models"
 	"io/ioutil"
-	"log"
+
 	"net/http"
 	"sync"
+
+	prom "immich-exp/src/prometheus"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var wg sync.WaitGroup
+
+var unmarshalError = "Can not unmarshal JSON"
 
 func Allrequests(r *prometheus.Registry) {
 
@@ -39,7 +45,7 @@ func Analyze(r *prometheus.Registry) {
 
 	if err != nil && err2 != nil {
 	} else {
-		SendBackMessagePreference(res2, res1, r)
+		prom.SendBackMessagePreference(res2, res1, r)
 	}
 	close(serverinfo)
 	close(allusers)
@@ -59,7 +65,7 @@ func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 
 			result := new(models.StructAllUsers)
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
-				log.Println("Can not unmarshal JSON")
+				log.Error(unmarshalError)
 			}
 
 			c <- (func() (*models.StructAllUsers, error) { return result, nil })
@@ -81,10 +87,10 @@ func ServerVersion(r *prometheus.Registry) {
 
 			var result models.StructServerVersion
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
-				log.Println("Can not unmarshal JSON for version")
+				log.Error(unmarshalError)
 			}
 
-			SendBackMessageserverVersion(&result, r)
+			prom.SendBackMessageserverVersion(&result, r)
 		}
 	}
 }
@@ -92,16 +98,8 @@ func ServerVersion(r *prometheus.Registry) {
 func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 	defer wg.Done()
 	resp, err := Apirequest("/api/server-info/stats", "GET")
-	if err != nil {
-		if err.Error() == "403" {
-			log.Println("Cookie changed, try to reconnect ...")
-		} else {
-			if models.GetPromptError() == false {
-				log.Println("Error : ", err)
-			}
-		}
+	if err == nil {
 
-	} else {
 		if models.GetPromptError() == true {
 			models.SetPromptError(false)
 		}
@@ -112,7 +110,7 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 
 			result := new(models.StructServerInfo)
 			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
-				log.Println("Can not unmarshal JSON for server infos")
+				log.Println(unmarshalError)
 			}
 			c <- (func() (*models.StructServerInfo, error) { return result, nil })
 
@@ -124,33 +122,41 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 
 	req, err := http.NewRequest(method, models.Getbaseurl()+uri, nil)
 	if err != nil {
-		log.Fatalln("Error with url")
+		log.Fatal("Error with url")
 	}
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("x-api-key", models.GetApiKey())
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
 		err := fmt.Errorf("Can't connect to server")
 		if models.GetPromptError() == false {
-			log.Println(err.Error())
+			log.Error(err.Error())
 			models.SetPromptError(true)
 		}
 
 		return resp, err
 
-	} else {
-		if resp.StatusCode == 200 {
-			models.SetPromptError(false)
-			return resp, nil
-		} else {
-			err := fmt.Errorf("%d", resp.StatusCode)
-			if models.GetPromptError() == false {
-				models.SetPromptError(true)
-				log.Println("Error code", err.Error(), " for ", models.Getbaseurl()+uri)
-			}
-			return resp, err
-		}
 	}
+	switch resp.StatusCode {
+	case http.StatusOK:
+		if models.GetPromptError() {
+			models.SetPromptError(false)
+		}
+		return resp, nil
+	case http.StatusUnauthorized, http.StatusForbidden:
+		err := fmt.Errorf("%d", resp.StatusCode)
+
+		log.Fatal("Api key unauthorized")
+
+		return resp, err
+	default:
+		err := fmt.Errorf("%d", resp.StatusCode)
+		if !models.GetPromptError() {
+			models.SetPromptError(true)
+			log.Debug("Error code ", resp.StatusCode)
+		}
+		return resp, err
+	}
+
 }

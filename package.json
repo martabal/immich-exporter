@@ -1,14 +1,15 @@
 {
   "name": "immich-exporter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "exporter for immich",
   "main": "src/main.go",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out -e",
+    "build:env" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out -e",
     "dev" : "go run ./src",
     "dev:env" : "go run ./src -e",
-    "build" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out -e",
-    "build:env" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out -e"
+    "test": "go test -v ./src/tests",
+    "update": "go get -u ./src && go mod tidy"
   },
   "keywords": [
     "exporter",

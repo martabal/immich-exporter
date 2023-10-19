@@ -2,16 +2,18 @@ name: Test
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
-jobs:
+    branches: ["main"]
 
+jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Run unit tests
+        run: go test -v ./src/tests
       - name: Run formatter
         run: test -z $(gofmt -l ./src)

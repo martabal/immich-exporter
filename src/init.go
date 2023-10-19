@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"immich-exp/src/immich"
+	immich "immich-exp/src/immich"
 	"immich-exp/src/models"
 
 	"net/http"

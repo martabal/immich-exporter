@@ -1,29 +1,30 @@
-package immich
+package prom
 
 import (
 	"immich-exp/src/models"
 	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+type Gauge []struct {
+	name  string
+	help  string
+	value float64
+}
+
 func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.StructAllUsers, r *prometheus.Registry) {
-	total_photos := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "immich_app_total_photos",
-		Help: "The total number of photos",
-	})
-	total_videos := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "immich_app_total_videos",
-		Help: "The total number of videos",
-	})
-	total_usage := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "immich_app_total_usage",
-		Help: "The total usage of disk",
-	})
-	total_users := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "immich_app_number_users",
-		Help: "The total number of users",
-	})
+
+	gauges := Gauge{
+		{"total photos", "The total number of photos", float64((*result).Photos)},
+		{"total videos", "The total number of videos", float64((*result).Videos)},
+		{"total usage", "The max number of active torrents allowed", float64((*result).Usage)},
+		{"number users", "The total number of users", float64(len((*result).UsageByUser))},
+	}
+
+	register(gauges, r)
+
 	user_info := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "immich_user_info",
 		Help: "All infos about users",
@@ -43,17 +44,9 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 	}, []string{"uid", "firstname", "lastname"})
 
 	r.MustRegister(user_info)
-	r.MustRegister(total_usage)
-	r.MustRegister(total_videos)
-	r.MustRegister(total_photos)
-	r.MustRegister(total_users)
 	r.MustRegister(user_usage)
 	r.MustRegister(user_videos)
 	r.MustRegister(user_photos)
-	total_photos.Add(float64((*result).Photos))
-	total_videos.Add(float64((*result).Videos))
-	total_usage.Add(float64((*result).Usage))
-	total_users.Add(float64(len((*result).UsageByUser)))
 
 	for i := 0; i < len((*result).UsageByUser); i++ {
 		var myuser = GetName((*result).UsageByUser[i].UserID, result2)
@@ -93,4 +86,17 @@ func GetName(result string, result2 *models.StructAllUsers) models.StructCustomU
 
 	}
 	return myuser
+}
+
+func register(gauges Gauge, r *prometheus.Registry) {
+	for _, gauge := range gauges {
+		name := "immich_app_" + strings.Replace(gauge.name, " ", "_", -1)
+		help := gauge.help
+		g := prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: name,
+			Help: help,
+		})
+		r.MustRegister(g)
+		g.Set(gauge.value)
+	}
 }
