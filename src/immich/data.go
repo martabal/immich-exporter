@@ -97,7 +97,7 @@ func ServerVersion(r *prometheus.Registry) {
 
 func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/server-info/stats", "GET")
+	resp, err := Apirequest("/api/server-info/statistics", "GET")
 	if err == nil {
 
 		if models.GetPromptError() == true {
@@ -144,6 +144,12 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 			models.SetPromptError(false)
 		}
 		return resp, nil
+	case http.StatusNotFound:
+		err := fmt.Errorf("%d", resp.StatusCode)
+
+		log.Fatal("Error code ", resp.StatusCode, " for ", models.Getbaseurl()+uri)
+
+		return resp, err
 	case http.StatusUnauthorized, http.StatusForbidden:
 		err := fmt.Errorf("%d", resp.StatusCode)
 
