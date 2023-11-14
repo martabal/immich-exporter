@@ -28,9 +28,7 @@ func main() {
 	log.Info("Started")
 	http.HandleFunc("/metrics", metrics)
 	addr := ":" + strconv.Itoa(models.GetPort())
-	if models.GetPort() != DEFAULTPORT {
-		log.Info("Listening on port", models.GetPort())
-	}
+	log.Info("Listening on port ", models.GetPort())
 	http.ListenAndServe(addr, nil)
 }
 
@@ -40,7 +38,6 @@ func metrics(w http.ResponseWriter, r *http.Request) {
 	immich.Allrequests(registry)
 	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 	h.ServeHTTP(w, r)
-
 }
 
 func projectinfo() {

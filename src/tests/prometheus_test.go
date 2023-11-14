@@ -9,17 +9,16 @@ import (
 
 func TestGetName(t *testing.T) {
 	result2 := &models.StructAllUsers{
-		{ID: "1", FirstName: "John", LastName: "Doe", Email: "john@example.com", IsAdmin: true},
-		{ID: "2", FirstName: "Jane", LastName: "Smith", Email: "jane@example.com", IsAdmin: false},
+		{ID: "1", Name: "John", Email: "john@example.com", IsAdmin: true},
+		{ID: "2", Name: "Jane", Email: "jane@example.com", IsAdmin: false},
 	}
 
 	result := "1"
 	expected := models.StructCustomUser{
-		ID:        "1",
-		FirstName: "John",
-		LastName:  "Doe",
-		Email:     "john@example.com",
-		IsAdmin:   true,
+		ID:      "1",
+		Name:    "John",
+		Email:   "john@example.com",
+		IsAdmin: true,
 	}
 	actual := prom.GetName(result, result2)
 	if !reflect.DeepEqual(expected, actual) {

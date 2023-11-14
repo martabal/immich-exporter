@@ -50,10 +50,10 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 
 	for i := 0; i < len((*result).UsageByUser); i++ {
 		var myuser = GetName((*result).UsageByUser[i].UserID, result2)
-		user_info.With(prometheus.Labels{"videos": strconv.Itoa((*result).UsageByUser[i].Videos), "photos": strconv.Itoa((*result).UsageByUser[i].Photos), "uid": (*result).UsageByUser[i].UserID, "usage": strconv.Itoa(int((*result).UsageByUser[i].Usage)), "firstname": myuser.FirstName, "lastname": myuser.LastName}).Inc()
-		user_photos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Photos))
-		user_usage.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Usage))
-		user_videos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "firstname": myuser.FirstName, "lastname": myuser.LastName}).Set(float64((*result).UsageByUser[i].Videos))
+		user_info.With(prometheus.Labels{"videos": strconv.Itoa((*result).UsageByUser[i].Videos), "photos": strconv.Itoa((*result).UsageByUser[i].Photos), "uid": (*result).UsageByUser[i].UserID, "usage": strconv.Itoa(int((*result).UsageByUser[i].Usage)), "name": myuser.Name}).Inc()
+		user_photos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "name": myuser.Name}).Set(float64((*result).UsageByUser[i].Photos))
+		user_usage.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "name": myuser.Name}).Set(float64((*result).UsageByUser[i].Usage))
+		user_videos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "name": myuser.Name}).Set(float64((*result).UsageByUser[i].Videos))
 	}
 
 }
@@ -78,8 +78,7 @@ func GetName(result string, result2 *models.StructAllUsers) models.StructCustomU
 		if (*result2)[i].ID == result {
 
 			myuser.ID = (*result2)[i].ID
-			myuser.FirstName = (*result2)[i].FirstName
-			myuser.LastName = (*result2)[i].LastName
+			myuser.Name = (*result2)[i].Name
 			myuser.Email = (*result2)[i].Email
 			myuser.IsAdmin = (*result2)[i].IsAdmin
 		}
