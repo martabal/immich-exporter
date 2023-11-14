@@ -16,11 +16,11 @@ type StructServerInfo struct {
 	Videos      int   `json:"videos"`
 	Usage       int64 `json:"usage"`
 	UsageByUser []struct {
-		UserID string `json:"userId"`
-		Name   string `json:"name"`
-		Photos int    `json:"photos"`
-		Videos int    `json:"videos"`
-		Usage  int    `json:"usage"`
+		UserID   string `json:"userId"`
+		UserName string `json:"userName"`
+		Photos   int    `json:"photos"`
+		Videos   int    `json:"videos"`
+		Usage    int    `json:"usage"`
 	} `json:"usageByUser"`
 }
 

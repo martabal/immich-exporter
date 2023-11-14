@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.1.5"
+      "version": "10.2.0"
     },
     {
       "type": "panel",
@@ -137,7 +137,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.1.5",
+      "pluginVersion": "10.2.0",
       "targets": [
         {
           "datasource": {
@@ -206,7 +206,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.1.5",
+      "pluginVersion": "10.2.0",
       "targets": [
         {
           "datasource": {
@@ -275,7 +275,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.1.5",
+      "pluginVersion": "10.2.0",
       "targets": [
         {
           "datasource": {
@@ -344,7 +344,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.1.5",
+      "pluginVersion": "10.2.0",
       "targets": [
         {
           "datasource": {
@@ -521,7 +521,7 @@
           }
         ]
       },
-      "pluginVersion": "10.1.5",
+      "pluginVersion": "10.2.0",
       "targets": [
         {
           "datasource": {
@@ -552,6 +552,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -632,7 +633,7 @@
           "exemplar": false,
           "expr": "immich_user_usage",
           "instant": false,
-          "legendFormat": "{{firstname}} {{lastname}}",
+          "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
         }
@@ -651,6 +652,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -865,7 +867,7 @@
           "exemplar": false,
           "expr": "immich_user_usage",
           "instant": true,
-          "legendFormat": "{{firstname}} {{lastname}}",
+          "legendFormat": "{{name}}",
           "range": false,
           "refId": "A"
         }
@@ -874,9 +876,8 @@
       "type": "piechart"
     }
   ],
-  "refresh": "5m",
+  "refresh": "auto",
   "schemaVersion": 38,
-  "style": "dark",
   "tags": [],
   "templating": {
     "list": []
@@ -889,6 +890,6 @@
   "timezone": "",
   "title": "Immich Go",
   "uid": "9QXCv3AVk",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
