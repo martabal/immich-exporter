@@ -28,20 +28,20 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 	user_info := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "immich_user_info",
 		Help: "All infos about users",
-	}, []string{"videos", "photos", "uid", "usage", "firstname", "lastname"})
+	}, []string{"videos", "photos", "uid", "usage", "name"})
 
 	user_usage := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "immich_user_usage",
 		Help: "The usage of the user",
-	}, []string{"uid", "firstname", "lastname"})
+	}, []string{"uid", "name"})
 	user_photos := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "immich_user_photos",
 		Help: "The number of photo of the user",
-	}, []string{"uid", "firstname", "lastname"})
+	}, []string{"uid", "name"})
 	user_videos := prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "immich_user_videos",
 		Help: "The number of videos of the user",
-	}, []string{"uid", "firstname", "lastname"})
+	}, []string{"uid", "name"})
 
 	r.MustRegister(user_info)
 	r.MustRegister(user_usage)

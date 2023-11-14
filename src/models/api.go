@@ -6,7 +6,7 @@ type StructLogin struct {
 	AccessToken          string `json:"accessToken"`
 	UserID               string `json:"userId"`
 	UserEmail            string `json:"userEmail"`
-	Name                 string `json:"Name"`
+	Name                 string `json:"name"`
 	IsAdmin              bool   `json:"isAdmin"`
 	ShouldChangePassword bool   `json:"shouldChangePassword"`
 }
@@ -17,7 +17,7 @@ type StructServerInfo struct {
 	Usage       int64 `json:"usage"`
 	UsageByUser []struct {
 		UserID string `json:"userId"`
-		Name   string `json:"Name"`
+		Name   string `json:"name"`
 		Photos int    `json:"photos"`
 		Videos int    `json:"videos"`
 		Usage  int    `json:"usage"`
@@ -43,7 +43,7 @@ type StructServerVersion struct {
 type StructAllUsers []struct {
 	ID                   string    `json:"id"`
 	Email                string    `json:"email"`
-	Name                 string    `json:"Name"`
+	Name                 string    `json:"name"`
 	CreatedAt            time.Time `json:"createdAt"`
 	ProfileImagePath     string    `json:"profileImagePath"`
 	ShouldChangePassword bool      `json:"shouldChangePassword"`
