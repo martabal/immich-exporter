@@ -58,3 +58,33 @@ type StructCustomUser struct {
 	Name    string
 	IsAdmin bool
 }
+
+type StructJobStatus struct {
+	JobCounts struct {
+		Active    int `json:"active"`
+		Completed int `json:"completed"`
+		Failed    int `json:"failed"`
+		Delayed   int `json:"delayed"`
+		Waiting   int `json:"waiting"`
+		Paused    int `json:"paused"`
+	} `json:"jobCounts"`
+	QueueStatus struct {
+		IsActive bool `json:"isActive"`
+		IsPaused bool `json:"isPaused"`
+	} `json:"queueStatus"`
+}
+
+type StructAllJobsStatus struct {
+	ThumbnailGeneration      StructJobStatus `json:"thumbnailGeneration"`
+	MetadataExtraction       StructJobStatus `json:"metadataExtraction"`
+	VideoConversion          StructJobStatus `json:"videoConversion"`
+	ObjectTagging            StructJobStatus `json:"objectTagging"`
+	RecognizeFaces           StructJobStatus `json:"recognizeFaces"`
+	ClipEncoding             StructJobStatus `json:"clipEncoding"`
+	BackgroundTask           StructJobStatus `json:"backgroundTask"`
+	StorageTemplateMigration StructJobStatus `json:"storageTemplateMigration"`
+	Migration                StructJobStatus `json:"migration"`
+	Search                   StructJobStatus `json:"search"`
+	Sidecar                  StructJobStatus `json:"sidecar"`
+	Library                  StructJobStatus `json:"library"`
+}
