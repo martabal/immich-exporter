@@ -32,23 +32,30 @@ func Allrequests(r *prometheus.Registry) {
 func Analyze(r *prometheus.Registry) {
 	defer wg.Done()
 
+	alljobsstatus := make(chan func() (*models.StructAllJobsStatus, error))
 	allusers := make(chan func() (*models.StructAllUsers, error))
 	serverinfo := make(chan func() (*models.StructServerInfo, error))
+	defer func() {
+		close(serverinfo)
+		close(allusers)
+		close(alljobsstatus)
+	}()
 
 	wg.Add(1)
+	go GetAllJobsStatus(alljobsstatus)
+	res1, err := (<-alljobsstatus)()
+	wg.Add(1)
 	go GetAllUsers(allusers)
-	res1, err := (<-allusers)()
+	res2, err2 := (<-allusers)()
 	wg.Add(1)
 	go ServerInfo(serverinfo)
 
-	res2, err2 := (<-serverinfo)()
+	res3, err3 := (<-serverinfo)()
 
-	if err != nil && err2 != nil {
+	if err != nil && err2 != nil && err3 != nil {
 	} else {
-		prom.SendBackMessagePreference(res2, res1, r)
+		prom.SendBackMessagePreference(res3, res2, res1, r)
 	}
-	close(serverinfo)
-	close(allusers)
 }
 
 func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
@@ -113,6 +120,29 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 				log.Println(unmarshalError)
 			}
 			c <- (func() (*models.StructServerInfo, error) { return result, nil })
+
+		}
+	}
+}
+
+func GetAllJobsStatus(c chan func() (*models.StructAllJobsStatus, error)) {
+	defer wg.Done()
+	resp, err := Apirequest("/api/jobs", "GET")
+	if err == nil {
+
+		if models.GetPromptError() == true {
+			models.SetPromptError(false)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalln(err)
+		} else {
+
+			result := new(models.StructAllJobsStatus)
+			if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
+				log.Println(unmarshalError)
+			}
+			c <- (func() (*models.StructAllJobsStatus, error) { return result, nil })
 
 		}
 	}

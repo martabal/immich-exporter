@@ -14,7 +14,12 @@ type Gauge []struct {
 	value float64
 }
 
-func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.StructAllUsers, r *prometheus.Registry) {
+func SendBackMessagePreference(
+	result *models.StructServerInfo,
+	result2 *models.StructAllUsers,
+	result3 *models.StructAllJobsStatus,
+	r *prometheus.Registry,
+) {
 
 	gauges := Gauge{
 		{"total photos", "The total number of photos", float64((*result).Photos)},
@@ -43,10 +48,16 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 		Help: "The number of videos of the user",
 	}, []string{"uid", "name"})
 
+	job_count := prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "immich_job_count",
+		Help: "The item count in the job",
+	}, []string{"status", "job_name"})
+
 	r.MustRegister(user_info)
 	r.MustRegister(user_usage)
 	r.MustRegister(user_videos)
 	r.MustRegister(user_photos)
+	r.MustRegister(job_count)
 
 	for i := 0; i < len((*result).UsageByUser); i++ {
 		var myuser = GetName((*result).UsageByUser[i].UserID, result2)
@@ -56,6 +67,27 @@ func SendBackMessagePreference(result *models.StructServerInfo, result2 *models.
 		user_videos.With(prometheus.Labels{"uid": (*result).UsageByUser[i].UserID, "name": myuser.Name}).Set(float64((*result).UsageByUser[i].Videos))
 	}
 
+	setJobStatusCounts(job_count, "background_task", &result3.BackgroundTask)
+	setJobStatusCounts(job_count, "clip_encoding", &result3.ClipEncoding)
+	setJobStatusCounts(job_count, "library", &result3.Library)
+	setJobStatusCounts(job_count, "metadata_extraction", &result3.MetadataExtraction)
+	setJobStatusCounts(job_count, "migration", &result3.Migration)
+	setJobStatusCounts(job_count, "object_tagging", &result3.ObjectTagging)
+	setJobStatusCounts(job_count, "recognize_faces", &result3.RecognizeFaces)
+	setJobStatusCounts(job_count, "search", &result3.Search)
+	setJobStatusCounts(job_count, "sidecar", &result3.Sidecar)
+	setJobStatusCounts(job_count, "storage_template_migration", &result3.StorageTemplateMigration)
+	setJobStatusCounts(job_count, "thumbnail_generation", &result3.ThumbnailGeneration)
+	setJobStatusCounts(job_count, "video_conversion", &result3.VideoConversion)
+}
+
+func setJobStatusCounts(job_count *prometheus.GaugeVec, jobName string, result *models.StructJobStatus) {
+	job_count.With(prometheus.Labels{"status": "active", "job_name": jobName}).Set(float64(result.JobCounts.Active))
+	job_count.With(prometheus.Labels{"status": "completed", "job_name": jobName}).Set(float64(result.JobCounts.Completed))
+	job_count.With(prometheus.Labels{"status": "failed", "job_name": jobName}).Set(float64(result.JobCounts.Failed))
+	job_count.With(prometheus.Labels{"status": "delayed", "job_name": jobName}).Set(float64(result.JobCounts.Delayed))
+	job_count.With(prometheus.Labels{"status": "waiting", "job_name": jobName}).Set(float64(result.JobCounts.Waiting))
+	job_count.With(prometheus.Labels{"status": "paused", "job_name": jobName}).Set(float64(result.JobCounts.Paused))
 }
 
 func SendBackMessageserverVersion(result *models.StructServerVersion, r *prometheus.Registry) {
