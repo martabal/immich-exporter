@@ -1,10 +1,10 @@
 {
   "name": "immich-exporter",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "exporter for immich",
   "main": "src/main.go",
   "scripts": {
-    "build" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out -e",
+    "build" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out",
     "build:env" : "go build -o ./immich-exporter.out ./src && ./immich-exporter.out -e",
     "dev" : "go run ./src",
     "dev:env" : "go run ./src -e",
