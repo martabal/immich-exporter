@@ -20,7 +20,7 @@ import (
 
 const DEFAULTPORT = 8090
 const AUTHOR = "martabal"
-const VERSION = "1.2.0"
+const VERSION = "1.3.1"
 const PROJECT_NAME = "immich-exporter"
 
 func main() {
