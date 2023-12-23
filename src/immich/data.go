@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"immich-exp/src/models"
-	"io/ioutil"
+	"io"
 
 	"net/http"
 	"sync"
@@ -21,6 +21,28 @@ var wg sync.WaitGroup
 var (
 	mutex sync.Mutex
 )
+
+type Data struct {
+	URL        string
+	HTTPMethod string
+}
+
+var httpGetUsers = Data{
+	URL:        "/api/user?isAll=true",
+	HTTPMethod: http.MethodGet,
+}
+var httpServerVersion = Data{
+	URL:        "/api/server-info/version",
+	HTTPMethod: http.MethodGet,
+}
+var httpStatistics = Data{
+	URL:        "/api/server-info/statistics",
+	HTTPMethod: http.MethodGet,
+}
+var httpGetJobs = Data{
+	URL:        "/api/jobs",
+	HTTPMethod: http.MethodGet,
+}
 
 var unmarshalError = "Can not unmarshal JSON"
 
@@ -63,10 +85,10 @@ func Analyze(r *prometheus.Registry) {
 
 func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/user?isAll=true", "GET")
+	resp, err := Apirequest(httpGetUsers.URL, httpGetUsers.HTTPMethod)
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -85,10 +107,10 @@ func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 
 func ServerVersion(r *prometheus.Registry) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/server-info/version", "GET")
+	resp, err := Apirequest(httpServerVersion.URL, httpServerVersion.HTTPMethod)
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -105,10 +127,10 @@ func ServerVersion(r *prometheus.Registry) {
 
 func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/server-info/statistics", "GET")
+	resp, err := Apirequest(httpStatistics.URL, httpStatistics.HTTPMethod)
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -126,10 +148,10 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 
 func GetAllJobsStatus(c chan func() (*models.StructAllJobsStatus, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/jobs", "GET")
+	resp, err := Apirequest(httpGetJobs.URL, httpGetJobs.HTTPMethod)
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -158,7 +180,7 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 	if err != nil {
 		err := fmt.Errorf("Can't connect to server")
 		mutex.Lock()
-		if models.GetPromptError() == false {
+		if !models.GetPromptError() {
 			log.Error(err.Error())
 			models.SetPromptError(true)
 		}
@@ -175,17 +197,15 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 		mutex.Unlock()
 		return resp, nil
 	case http.StatusNotFound:
-		err := fmt.Errorf("%d", resp.StatusCode)
 
 		log.Fatal("Error code ", resp.StatusCode, " for ", models.Getbaseurl()+uri)
 
-		return resp, err
+		return resp, fmt.Errorf("%d", resp.StatusCode)
 	case http.StatusUnauthorized, http.StatusForbidden:
-		err := fmt.Errorf("%d", resp.StatusCode)
 
 		log.Fatal("Api key unauthorized")
 
-		return resp, err
+		return resp, fmt.Errorf("%d", resp.StatusCode)
 	default:
 		err := fmt.Errorf("%d", resp.StatusCode)
 		mutex.Lock()
