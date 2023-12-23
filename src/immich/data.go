@@ -22,6 +22,28 @@ var (
 	mutex sync.Mutex
 )
 
+type Data struct {
+	URL        string
+	HTTPMethod string
+}
+
+var httpGetUsers = Data{
+	URL:        "/api/user?isAll=true",
+	HTTPMethod: http.MethodGet,
+}
+var httpServerVersion = Data{
+	URL:        "/api/server-info/version",
+	HTTPMethod: http.MethodGet,
+}
+var httpStatistics = Data{
+	URL:        "/api/server-info/statistics",
+	HTTPMethod: http.MethodGet,
+}
+var httpGetJobs = Data{
+	URL:        "/api/jobs",
+	HTTPMethod: http.MethodGet,
+}
+
 var unmarshalError = "Can not unmarshal JSON"
 
 func Allrequests(r *prometheus.Registry) {
@@ -63,7 +85,7 @@ func Analyze(r *prometheus.Registry) {
 
 func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/user?isAll=true", "GET")
+	resp, err := Apirequest(httpGetUsers.URL, httpGetUsers.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
@@ -85,7 +107,7 @@ func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 
 func ServerVersion(r *prometheus.Registry) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/server-info/version", "GET")
+	resp, err := Apirequest(httpServerVersion.URL, httpServerVersion.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
@@ -105,7 +127,7 @@ func ServerVersion(r *prometheus.Registry) {
 
 func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/server-info/statistics", "GET")
+	resp, err := Apirequest(httpStatistics.URL, httpStatistics.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
@@ -126,7 +148,7 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 
 func GetAllJobsStatus(c chan func() (*models.StructAllJobsStatus, error)) {
 	defer wg.Done()
-	resp, err := Apirequest("/api/jobs", "GET")
+	resp, err := Apirequest(httpGetJobs.URL, httpGetJobs.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
