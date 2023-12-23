@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"immich-exp/src/models"
-	"io/ioutil"
+	"io"
 
 	"net/http"
 	"sync"
@@ -66,7 +66,7 @@ func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
 	resp, err := Apirequest("/api/user?isAll=true", "GET")
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -88,7 +88,7 @@ func ServerVersion(r *prometheus.Registry) {
 	resp, err := Apirequest("/api/server-info/version", "GET")
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -108,7 +108,7 @@ func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
 	resp, err := Apirequest("/api/server-info/statistics", "GET")
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -129,7 +129,7 @@ func GetAllJobsStatus(c chan func() (*models.StructAllJobsStatus, error)) {
 	resp, err := Apirequest("/api/jobs", "GET")
 	if err == nil {
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatalln(err)
 		} else {
@@ -158,7 +158,7 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 	if err != nil {
 		err := fmt.Errorf("Can't connect to server")
 		mutex.Lock()
-		if models.GetPromptError() == false {
+		if !models.GetPromptError() {
 			log.Error(err.Error())
 			models.SetPromptError(true)
 		}
@@ -175,17 +175,15 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 		mutex.Unlock()
 		return resp, nil
 	case http.StatusNotFound:
-		err := fmt.Errorf("%d", resp.StatusCode)
 
 		log.Fatal("Error code ", resp.StatusCode, " for ", models.Getbaseurl()+uri)
 
-		return resp, err
+		return resp, fmt.Errorf("%d", resp.StatusCode)
 	case http.StatusUnauthorized, http.StatusForbidden:
-		err := fmt.Errorf("%d", resp.StatusCode)
 
 		log.Fatal("Api key unauthorized")
 
-		return resp, err
+		return resp, fmt.Errorf("%d", resp.StatusCode)
 	default:
 		err := fmt.Errorf("%d", resp.StatusCode)
 		mutex.Lock()
