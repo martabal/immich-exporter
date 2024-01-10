@@ -22,7 +22,7 @@ docker run --name=immich-exporter \
     -e IMMICH_BASE_URL=http://192.168.1.10:8080 \
     -e IMMICH_API_KEY=<your_api_key> \
     -p 8090:8090 \
-    martabal/immich-exporter
+    ghcr.io/martabal/immich-exporter
 ```
 
 ### Docker-compose
@@ -31,7 +31,7 @@ docker run --name=immich-exporter \
 version: "2.1"
 services:
   immich:
-    image: martabal/immich-exporter:latest
+    image: ghcr.io/martabal/immich-exporter:latest
     container_name: immich-exporter
     environment:
       - IMMICH_BASE_URL=http://192.168.1.10:8080
