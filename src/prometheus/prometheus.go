@@ -1,7 +1,7 @@
 package prom
 
 import (
-	"immich-exp/src/models"
+	"immich-exp/models"
 	"strconv"
 	"strings"
 

@@ -1,8 +1,8 @@
 package prom
 
 import (
-	"immich-exp/src/models"
-	prom "immich-exp/src/prometheus"
+	"immich-exp/models"
+	prom "immich-exp/prometheus"
 	"reflect"
 	"testing"
 )
