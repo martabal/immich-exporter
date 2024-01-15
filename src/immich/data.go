@@ -3,13 +3,13 @@ package immich
 import (
 	"encoding/json"
 	"fmt"
-	"immich-exp/src/models"
+	"immich-exp/models"
 	"io"
 
 	"net/http"
 	"sync"
 
-	prom "immich-exp/src/prometheus"
+	prom "immich-exp/prometheus"
 
 	log "github.com/sirupsen/logrus"
 

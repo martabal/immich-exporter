@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	immich "immich-exp/src/immich"
-	"immich-exp/src/models"
+	immich "immich-exp/immich"
+	"immich-exp/models"
 
 	"net/http"
 	"strconv"
@@ -19,14 +19,17 @@ import (
 )
 
 const DEFAULTPORT = 8090
-const AUTHOR = "martabal"
-const VERSION = "1.3.1"
-const PROJECT_NAME = "immich-exporter"
+
+var (
+	Version     = "dev"
+	Author      = "martabal"
+	ProjectName = "immich-exporter"
+)
 
 func main() {
 	loadenv()
-	fmt.Printf("%s (version %s)\n", PROJECT_NAME, VERSION)
-	fmt.Println("Author: ", AUTHOR)
+	fmt.Printf("%s (version %s)\n", ProjectName, Version)
+	fmt.Println("Author: ", Author)
 	fmt.Println("Using log level: ", log.GetLevel())
 	log.Info("Immich URL: ", models.Getbaseurl())
 	log.Info("Started")
