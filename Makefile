@@ -1,5 +1,5 @@
 build: 
-	go build -o ./qbittorrent-exporter.out ./src
+	cd src && go build -o ../immich-exporter.out .
 
 dev : 
 	cd src && go run .
