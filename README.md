@@ -62,19 +62,19 @@ If you want to use an .env file, edit `.env.example` to match your setup, rename
 
 ### Environment variables
 
-| Parameters | Function |
-| :-----: | ----- |
-| `-p 8090` | Webservice port |
-| `-e IMMICH_BASE_URL` | Immich base URL |
-| `-e IMMICH_API_KEY` | Immich API key  |
-| `-e EXPORTER_PORT` | qbittorrent export port (optional) | `8090` |
-| `-e LOG_LEVEL` | App log level (`TRACE`, `DEBUG`, `INFO`, `WARN` and `ERROR`) | `INFO` |
+|      Parameters      |                      Function                       | Default Value |
+| :------------------: | :-------------------------------------------------: | :-----------: |
+|      `-p 8090`       |                   Webservice port                   |               |
+| `-e IMMICH_BASE_URL` |                   Immich base URL                   |               |
+| `-e IMMICH_API_KEY`  |                   Immich API key                    |               |
+|  `-e EXPORTER_PORT`  |         qbittorrent export port (optional)          |    `8090`     |
+|    `-e LOG_LEVEL`    | App log level (`DEBUG`, `INFO`, `WARN` and `ERROR`) |    `INFO`     |
 
 ### Arguments
 
-| Arguments | Function |
-| :-----: | ----- |
-| -e | If qbittorrent-exporter detects a .env file in the same directory, the values in the .env will be used, `-e` forces the usage of environment variables |
+| Arguments | Function                                                                                                                                               |
+| :-------: | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|    -e     | If qbittorrent-exporter detects a .env file in the same directory, the values in the .env will be used, `-e` forces the usage of environment variables |
 
 ### Setup
 

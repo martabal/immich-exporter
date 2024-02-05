@@ -3,15 +3,16 @@ package immich
 import (
 	"encoding/json"
 	"fmt"
-	"immich-exp/src/models"
+	"immich-exp/logger"
+	"immich-exp/models"
 	"io"
+	"strconv"
 
+	API "immich-exp/api"
 	"net/http"
 	"sync"
 
-	prom "immich-exp/src/prometheus"
-
-	log "github.com/sirupsen/logrus"
+	prom "immich-exp/prometheus"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -58,9 +59,9 @@ func Allrequests(r *prometheus.Registry) {
 func Analyze(r *prometheus.Registry) {
 	defer wg.Done()
 
-	alljobsstatus := make(chan func() (*models.StructAllJobsStatus, error))
-	allusers := make(chan func() (*models.StructAllUsers, error))
-	serverinfo := make(chan func() (*models.StructServerInfo, error))
+	alljobsstatus := make(chan func() (*API.StructAllJobsStatus, error))
+	allusers := make(chan func() (*API.StructAllUsers, error))
+	serverinfo := make(chan func() (*API.StructServerInfo, error))
 	defer func() {
 		close(serverinfo)
 		close(allusers)
@@ -83,26 +84,26 @@ func Analyze(r *prometheus.Registry) {
 	}
 }
 
-func GetAllUsers(c chan func() (*models.StructAllUsers, error)) {
+func GetAllUsers(c chan func() (*API.StructAllUsers, error)) {
 	defer wg.Done()
 	resp, err := Apirequest(httpGetUsers.URL, httpGetUsers.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatalln(err)
+			panic(err)
 		} else {
 
-			result := new(models.StructAllUsers)
+			result := new(API.StructAllUsers)
 			if err := json.Unmarshal(body, &result); err != nil {
-				log.Error(unmarshalError)
+				logger.Log.Error(unmarshalError)
 			}
 
-			c <- (func() (*models.StructAllUsers, error) { return result, nil })
+			c <- (func() (*API.StructAllUsers, error) { return result, nil })
 			return
 		}
 	}
-	c <- (func() (*models.StructAllUsers, error) { return new(models.StructAllUsers), err })
+	c <- (func() (*API.StructAllUsers, error) { return new(API.StructAllUsers), err })
 }
 
 func ServerVersion(r *prometheus.Registry) {
@@ -112,12 +113,12 @@ func ServerVersion(r *prometheus.Registry) {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatalln(err)
+			panic(err)
 		} else {
 
-			var result models.StructServerVersion
+			var result API.StructServerVersion
 			if err := json.Unmarshal(body, &result); err != nil {
-				log.Error(unmarshalError)
+				logger.Log.Error(unmarshalError)
 			}
 
 			prom.SendBackMessageserverVersion(&result, r)
@@ -125,53 +126,53 @@ func ServerVersion(r *prometheus.Registry) {
 	}
 }
 
-func ServerInfo(c chan func() (*models.StructServerInfo, error)) {
+func ServerInfo(c chan func() (*API.StructServerInfo, error)) {
 	defer wg.Done()
 	resp, err := Apirequest(httpStatistics.URL, httpStatistics.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatalln(err)
+			panic(err)
 		} else {
 
-			result := new(models.StructServerInfo)
+			result := new(API.StructServerInfo)
 			if err := json.Unmarshal(body, &result); err != nil {
-				log.Println(unmarshalError)
+				logger.Log.Error(unmarshalError)
 			}
-			c <- (func() (*models.StructServerInfo, error) { return result, nil })
+			c <- (func() (*API.StructServerInfo, error) { return result, nil })
 			return
 		}
 	}
-	c <- (func() (*models.StructServerInfo, error) { return new(models.StructServerInfo), err })
+	c <- (func() (*API.StructServerInfo, error) { return new(API.StructServerInfo), err })
 }
 
-func GetAllJobsStatus(c chan func() (*models.StructAllJobsStatus, error)) {
+func GetAllJobsStatus(c chan func() (*API.StructAllJobsStatus, error)) {
 	defer wg.Done()
 	resp, err := Apirequest(httpGetJobs.URL, httpGetJobs.HTTPMethod)
 	if err == nil {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatalln(err)
+			panic(err)
 		} else {
 
-			result := new(models.StructAllJobsStatus)
+			result := new(API.StructAllJobsStatus)
 			if err := json.Unmarshal(body, &result); err != nil {
-				log.Println(unmarshalError)
+				logger.Log.Error(unmarshalError)
 			}
-			c <- (func() (*models.StructAllJobsStatus, error) { return result, nil })
+			c <- (func() (*API.StructAllJobsStatus, error) { return result, nil })
 			return
 		}
 	}
-	c <- (func() (*models.StructAllJobsStatus, error) { return new(models.StructAllJobsStatus), err })
+	c <- (func() (*API.StructAllJobsStatus, error) { return new(API.StructAllJobsStatus), err })
 }
 
 func Apirequest(uri string, method string) (*http.Response, error) {
 
 	req, err := http.NewRequest(method, models.Getbaseurl()+uri, nil)
 	if err != nil {
-		log.Fatal("Error with url")
+		panic("Error with url")
 	}
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("x-api-key", models.GetApiKey())
@@ -181,7 +182,7 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 		err := fmt.Errorf("Can't connect to server")
 		mutex.Lock()
 		if !models.GetPromptError() {
-			log.Error(err.Error())
+			logger.Log.Error(err.Error())
 			models.SetPromptError(true)
 		}
 		mutex.Unlock()
@@ -197,21 +198,18 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 		mutex.Unlock()
 		return resp, nil
 	case http.StatusNotFound:
+		errormessage := "Error code " + strconv.Itoa(resp.StatusCode) + " for " + models.Getbaseurl() + uri
+		panic(errormessage)
 
-		log.Fatal("Error code ", resp.StatusCode, " for ", models.Getbaseurl()+uri)
-
-		return resp, fmt.Errorf("%d", resp.StatusCode)
 	case http.StatusUnauthorized, http.StatusForbidden:
+		panic("Api key unauthorized")
 
-		log.Fatal("Api key unauthorized")
-
-		return resp, fmt.Errorf("%d", resp.StatusCode)
 	default:
 		err := fmt.Errorf("%d", resp.StatusCode)
 		mutex.Lock()
 		if !models.GetPromptError() {
 			models.SetPromptError(true)
-			log.Debug("Error code ", resp.StatusCode)
+			logger.Log.Debug("Error code " + strconv.Itoa(resp.StatusCode))
 		}
 		mutex.Unlock()
 		return resp, err

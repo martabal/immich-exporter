@@ -2,19 +2,19 @@ build:
 	go build -o ./qbittorrent-exporter.out ./src
 
 dev : 
-	go run ./src
+	cd src && go run .
 
 dev-env : 
-	go run ./src -e
+	cd src && go run . -e
 
 format : 
-	go fmt ./src
+	cd src && test -z $(gofmt -l .)
 
 lint: 
-	docker run --rm -v ./:/app -w /app golangci/golangci-lint:latest golangci-lint run -v
+	docker run --rm -v ./src:/app -w /app golangci/golangci-lint:latest golangci-lint run -v
 
 test: 
-	go test -v ./src/tests
+	cd src && go test -v ./tests
 
 update: 
-	go get -u ./src && go mod tidy
+	cd src && go get -u . && go mod tidy
