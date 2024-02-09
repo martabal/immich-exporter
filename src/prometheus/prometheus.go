@@ -1,7 +1,7 @@
 package prom
 
 import (
-	"immich-exp/models"
+	API "immich-exp/api"
 	"strconv"
 	"strings"
 
@@ -15,9 +15,9 @@ type Gauge []struct {
 }
 
 func SendBackMessagePreference(
-	result *models.StructServerInfo,
-	result2 *models.StructAllUsers,
-	result3 *models.StructAllJobsStatus,
+	result *API.StructServerInfo,
+	result2 *API.StructAllUsers,
+	result3 *API.StructAllJobsStatus,
 	r *prometheus.Registry,
 ) {
 
@@ -81,7 +81,7 @@ func SendBackMessagePreference(
 	setJobStatusCounts(job_count, "video_conversion", &result3.VideoConversion)
 }
 
-func setJobStatusCounts(job_count *prometheus.GaugeVec, jobName string, result *models.StructJobStatus) {
+func setJobStatusCounts(job_count *prometheus.GaugeVec, jobName string, result *API.StructJobStatus) {
 	job_count.With(prometheus.Labels{"status": "active", "job_name": jobName}).Set(float64(result.JobCounts.Active))
 	job_count.With(prometheus.Labels{"status": "completed", "job_name": jobName}).Set(float64(result.JobCounts.Completed))
 	job_count.With(prometheus.Labels{"status": "failed", "job_name": jobName}).Set(float64(result.JobCounts.Failed))
@@ -90,7 +90,7 @@ func setJobStatusCounts(job_count *prometheus.GaugeVec, jobName string, result *
 	job_count.With(prometheus.Labels{"status": "paused", "job_name": jobName}).Set(float64(result.JobCounts.Paused))
 }
 
-func SendBackMessageserverVersion(result *models.StructServerVersion, r *prometheus.Registry) {
+func SendBackMessageserverVersion(result *API.StructServerVersion, r *prometheus.Registry) {
 
 	version := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "immich_app_version",
@@ -104,8 +104,8 @@ func SendBackMessageserverVersion(result *models.StructServerVersion, r *prometh
 
 }
 
-func GetName(result string, result2 *models.StructAllUsers) models.StructCustomUser {
-	var myuser models.StructCustomUser
+func GetName(result string, result2 *API.StructAllUsers) API.StructCustomUser {
+	var myuser API.StructCustomUser
 	for i := 0; i < len(*result2); i++ {
 		if (*result2)[i].ID == result {
 
