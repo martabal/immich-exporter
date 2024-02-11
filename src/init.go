@@ -32,7 +32,7 @@ func main() {
 	loadenv()
 
 	fmt.Printf("%s (version %s)\n", ProjectName, Version)
-	fmt.Println("Author: ", Author)
+	fmt.Println("Author:", Author)
 	fmt.Println("Using log level: ", models.GetLogLevel())
 	logger.Log.Info("Immich URL: " + models.Getbaseurl())
 	logger.Log.Info("Started")
