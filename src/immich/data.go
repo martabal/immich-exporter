@@ -45,7 +45,7 @@ var httpGetJobs = Data{
 	HTTPMethod: http.MethodGet,
 }
 
-var unmarshalError = "Can not unmarshal JSON"
+var unmarshalError = "Can not unmarshal JSON "
 
 func Allrequests(r *prometheus.Registry) {
 
@@ -95,8 +95,9 @@ func GetAllUsers(c chan func() (*API.StructAllUsers, error)) {
 		} else {
 
 			result := new(API.StructAllUsers)
+			unmarshalErr := unmarshalError + "for all users"
 			if err := json.Unmarshal(body, &result); err != nil {
-				logger.Log.Error(unmarshalError)
+				logger.Log.Error(unmarshalErr)
 			}
 
 			c <- (func() (*API.StructAllUsers, error) { return result, nil })
@@ -117,8 +118,9 @@ func ServerVersion(r *prometheus.Registry) {
 		} else {
 
 			var result API.StructServerVersion
+			unmarshalErr := unmarshalError + "for all server version"
 			if err := json.Unmarshal(body, &result); err != nil {
-				logger.Log.Error(unmarshalError)
+				logger.Log.Error(unmarshalErr)
 			}
 
 			prom.SendBackMessageserverVersion(&result, r)
@@ -137,8 +139,9 @@ func ServerInfo(c chan func() (*API.StructServerInfo, error)) {
 		} else {
 
 			result := new(API.StructServerInfo)
+			unmarshalErr := unmarshalError + "for all server info"
 			if err := json.Unmarshal(body, &result); err != nil {
-				logger.Log.Error(unmarshalError)
+				logger.Log.Error(unmarshalErr)
 			}
 			c <- (func() (*API.StructServerInfo, error) { return result, nil })
 			return
@@ -158,8 +161,9 @@ func GetAllJobsStatus(c chan func() (*API.StructAllJobsStatus, error)) {
 		} else {
 
 			result := new(API.StructAllJobsStatus)
+			unmarshalErr := unmarshalError + "for jobs status"
 			if err := json.Unmarshal(body, &result); err != nil {
-				logger.Log.Error(unmarshalError)
+				logger.Log.Error(unmarshalErr)
 			}
 			c <- (func() (*API.StructAllJobsStatus, error) { return result, nil })
 			return
@@ -179,7 +183,7 @@ func Apirequest(uri string, method string) (*http.Response, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		err := fmt.Errorf("Can't connect to server")
+		err := fmt.Errorf("can't connect to server")
 		mutex.Lock()
 		if !models.GetPromptError() {
 			logger.Log.Error(err.Error())
